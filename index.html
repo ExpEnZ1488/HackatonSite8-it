@@ -1,0 +1,2202 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0" />
+<title>NeoBank</title>
+
+<style>
+/* ===================== BASE / THEME ===================== */
+:root{
+  --bg:#0f0f10;
+  --card:#1c1c1e;
+  --text:#fff;
+  --muted:rgba(255,255,255,.66);
+  --border:rgba(255,255,255,.10);
+  --field:rgba(255,255,255,.06);
+  --overlay:rgba(0,0,0,.58);
+  --shadow:0 22px 80px rgba(0,0,0,.50);
+
+  --accent:#ffcc00;
+  --green:#4cd964;
+  --red:#ff3b30;
+
+  --r1:14px;
+  --r2:18px;
+  --r3:22px;
+
+  --ease:cubic-bezier(.2,.9,.2,1);
+  --ease2:cubic-bezier(.16,1,.3,1);
+  --blur:18px;
+
+  --g1:linear-gradient(135deg,#ffcc00,#ff9500);
+  --g2:linear-gradient(135deg,#00d4ff,#3a7bd5);
+  --g3:linear-gradient(135deg,#a18cd1,#fbc2eb);
+  --g4:linear-gradient(135deg,#43e97b,#38f9d7);
+  --g5:linear-gradient(135deg,#fa709a,#fee140);
+  --g6:linear-gradient(135deg,#30cfd0,#330867);
+  --g7:linear-gradient(135deg,#f093fb,#f5576c);
+  --g8:linear-gradient(135deg,#4facfe,#00f2fe);
+  --g9:linear-gradient(135deg,#667eea,#764ba2);
+  --g10:linear-gradient(135deg,#f7971e,#ffd200);
+  --g11:linear-gradient(135deg,#ee0979,#ff6a00);
+  --g12:linear-gradient(135deg,#11998e,#38ef7d);
+}
+
+:root[data-theme="light"]{
+  --bg:#f5f6f7;
+  --card:#ffffff;
+  --text:#0b0b0c;
+  --muted:rgba(10,10,10,.58);
+  --border:rgba(10,10,10,.12);
+  --field:rgba(10,10,10,.06);
+  --overlay:rgba(0,0,0,.35);
+  --shadow:0 16px 55px rgba(0,0,0,.18);
+  --green:#2fbf5b;
+  --red:#e6413a;
+}
+
+:root[data-theme="glass"]{
+  --bg:#071022;
+  --card:rgba(255,255,255,.085);
+  --text:#fff;
+  --muted:rgba(255,255,255,.72);
+  --border:rgba(255,255,255,.15);
+  --field:rgba(255,255,255,.085);
+  --overlay:rgba(0,0,0,.55);
+  --shadow:0 28px 95px rgba(0,0,0,.55);
+}
+
+/* ===================== GLOBAL ===================== */
+*{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+}
+
+/* rich background (keeps your style but adds depth) */
+.bg-stage{
+  position:fixed; inset:0; z-index:-10;
+  overflow:hidden;
+}
+.bg-stage .blob{
+  position:absolute;
+  width:820px; height:820px;
+  filter: blur(30px);
+  opacity:.28;
+  transform: translate3d(0,0,0);
+  animation: blobFloat 14s var(--ease2) infinite alternate;
+}
+.bg-stage .blob.b1{ left:-280px; top:-280px; background:radial-gradient(circle at 30% 30%, rgba(255,204,0,.55), rgba(255,204,0,0) 60%); }
+.bg-stage .blob.b2{ right:-320px; top:80px; background:radial-gradient(circle at 30% 30%, rgba(79,172,254,.50), rgba(79,172,254,0) 62%); animation-duration: 17s; }
+.bg-stage .blob.b3{ left:10%; bottom:-380px; background:radial-gradient(circle at 40% 40%, rgba(76,217,100,.40), rgba(76,217,100,0) 60%); animation-duration: 16s; }
+
+.bg-stage .grid{
+  position:absolute; inset:-40px;
+  background:
+    radial-gradient(900px 600px at 50% 0%, rgba(255,255,255,.06), rgba(255,255,255,0) 60%),
+    linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size: auto, 54px 54px, 54px 54px;
+  opacity:.18;
+  mask-image: radial-gradient(600px 420px at 50% 12%, rgba(0,0,0,1), rgba(0,0,0,0) 65%);
+}
+
+.bg-stage .noise{
+  position:absolute; inset:0;
+  opacity:.08;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+  background-size:220px 220px;
+  mix-blend-mode: overlay;
+}
+
+@keyframes blobFloat{
+  0%{ transform: translate3d(-10px, 0px, 0) scale(1); }
+  100%{ transform: translate3d(40px, 30px, 0) scale(1.05); }
+}
+
+:root[data-theme="glass"] body{
+  background: radial-gradient(1200px 800px at 15% 10%, rgba(255,204,0,.18), rgba(255,204,0,0) 55%),
+              radial-gradient(900px 700px at 85% 35%, rgba(120,160,255,.20), rgba(120,160,255,0) 55%),
+              radial-gradient(900px 800px at 50% 90%, rgba(76,217,100,.12), rgba(76,217,100,0) 60%),
+              #071022;
+}
+
+/* micro-smooth everywhere */
+button,.key,.card,.cat,.icon-btn,.add-card,.transaction,.chip,.seg,.sel,.sel-item,.tile{
+  transition: transform .22s var(--ease), opacity .22s var(--ease),
+              filter .22s var(--ease), background .28s var(--ease),
+              border-color .28s var(--ease), box-shadow .28s var(--ease);
+}
+button:active,.key:active,.cat:active,.icon-btn:active,.add-card:active,
+.transaction:active,.chip:active,.sel:active,.seg:active,.tile:active{
+  transform: scale(.985);
+}
+
+/* ===================== ANIMATIONS (A LOT) ===================== */
+@keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+@keyframes fadeUp{ from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:translateY(0)} }
+@keyframes pop{ from{opacity:0; transform:scale(.965)} to{opacity:1; transform:scale(1)} }
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-6px)}
+  80%{transform:translateX(6px)}
+}
+@keyframes shimmer{
+  0%{ background-position:0% 50% }
+  100%{ background-position:100% 50% }
+}
+@keyframes sparkle{
+  0%{transform:translateX(-60%) rotate(12deg);opacity:0}
+  25%{opacity:.35}
+  100%{transform:translateX(160%) rotate(12deg);opacity:0}
+}
+@keyframes floaty{ from{transform:translateY(0)} to{transform:translateY(-3px)} }
+@keyframes toastIn{ from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:translateY(0)} }
+@keyframes toastOut{ to{opacity:0; transform:translateY(14px)} }
+@keyframes checkDraw{ to{stroke-dashoffset:0} }
+@keyframes glowPulse{
+  from{ box-shadow:0 0 0 rgba(255,204,0,0) }
+  to{ box-shadow:0 0 55px rgba(255,204,0,.20) }
+}
+@keyframes ringSpin{ to{ transform: rotate(360deg); } }
+@keyframes softBreath{ 0%{opacity:.55} 100%{opacity:.9} }
+
+/* ===================== PIN SCREEN (same layout, richer) ===================== */
+.pin-screen{
+  position:fixed; inset:0;
+  display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+  animation:fadeIn .25s var(--ease) both;
+}
+.pin-title{ font-size:20px; font-weight:900; letter-spacing:.2px; }
+.pin-sub{ margin-top:8px; font-size:12px; color:var(--muted); }
+
+.pin-dots{
+  display:flex; gap:12px;
+  margin:22px 0 10px;
+  padding:10px 16px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.02);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+}
+.pin-dots.shake{ animation: shake .35s var(--ease); }
+.dot{
+  width:14px; height:14px;
+  border-radius:50%;
+  border:2px solid var(--accent);
+  opacity:.9;
+}
+.dot.filled{ background:var(--accent); }
+
+.pin-hint{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  opacity:.85;
+  animation: softBreath 1.8s var(--ease2) infinite alternate;
+}
+.pin-hint .mini{
+  width:8px; height:8px; border-radius:50%;
+  background: rgba(255,204,0,.55);
+  box-shadow: 0 0 22px rgba(255,204,0,.20);
+}
+
+.keypad{
+  display:grid;
+  grid-template-columns:repeat(3,86px);
+  gap:12px;
+  animation: fadeUp .35s var(--ease) both;
+}
+.key{
+  background:var(--card);
+  border:1px solid var(--border);
+  padding:20px 0;
+  text-align:center;
+  border-radius:16px;
+  font-size:18px;
+  cursor:pointer;
+  user-select:none;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  position:relative;
+  overflow:hidden;
+}
+.key::after{
+  content:"";
+  position:absolute; inset:-40%;
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.18), rgba(255,255,255,0));
+  transform: translateX(-70%) rotate(10deg);
+  opacity:.55;
+  transition: transform .75s var(--ease2);
+}
+.key:hover::after{ transform: translateX(70%) rotate(10deg); }
+.key:hover{ filter:brightness(1.06); }
+
+/* ===================== AUTH SUCCESS OVERLAY ===================== */
+.auth-ok{
+  position:fixed; inset:0;
+  display:none; align-items:center; justify-content:center;
+  background:var(--overlay);
+  z-index:1500;
+}
+.auth-ok.show{ display:flex; animation:fadeIn .18s var(--ease) both; }
+.auth-ok-card{
+  width:min(360px, calc(100% - 28px));
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:18px;
+  box-shadow:var(--shadow);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  text-align:center;
+  animation: pop .22s var(--ease) both;
+  position:relative;
+  overflow:hidden;
+}
+.auth-ok-card::after{
+  content:"";
+  position:absolute; inset:-40%;
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.14), rgba(255,255,255,0));
+  transform: translateX(-70%) rotate(10deg);
+  animation:sparkle 1.8s var(--ease2) infinite;
+}
+.ok-ring{
+  width:86px; height:86px;
+  margin:6px auto 12px;
+  border-radius:50%;
+  background: rgba(255,204,0,.14);
+  border:1px solid rgba(255,204,0,.25);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  animation: glowPulse .45s var(--ease) both;
+  position:relative;
+}
+.ok-ring::before{
+  content:"";
+  position:absolute; inset:-8px;
+  border-radius:50%;
+  border:1px solid rgba(255,204,0,.18);
+  opacity:.6;
+  animation: ringSpin 2.8s linear infinite;
+}
+.ok-svg{ width:44px; height:44px; }
+.ok-path{
+  stroke: var(--green);
+  stroke-width: 6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: checkDraw .55s var(--ease) forwards .08s;
+}
+.ok-title{ font-weight:900; font-size:16px; }
+.ok-sub{ font-size:12px; color:var(--muted); margin-top:4px; }
+
+/* ===================== APP ===================== */
+.app{
+    display:none;
+    max-width:1200px;;
+    margin:auto;
+    padding:20px;
+}
+
+
+.topbar{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+  animation: fadeUp .45s var(--ease) both;
+}
+.brand .title{ font-size:18px; font-weight:900; letter-spacing:.2px; }
+.brand .sub{ margin-top:2px; font-size:12px; color:var(--muted); }
+
+.actions{ display:flex; gap:8px; align-items:center; }
+.pill{
+  border:1px solid var(--border);
+  padding:8px 10px;
+  border-radius:999px;
+  font-size:12px;
+  color:var(--muted);
+  background:rgba(255,255,255,.02);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+}
+.icon-btn{
+  width:36px; height:36px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  user-select:none;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+}
+.icon-btn:hover{ filter:brightness(1.06); }
+
+/* extra decorative header chips */
+.header-decor{
+  display:flex;
+  gap:8px;
+  margin:10px 0 12px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.header-decor::-webkit-scrollbar{ height:0; }
+.badge{
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+  font-size:12px;
+  color:var(--text);
+  white-space:nowrap;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  animation: pop .28s var(--ease) both;
+}
+.badge.float:hover{ animation: floaty .9s var(--ease2) infinite alternate; }
+
+/* cards slider */
+.cards{
+  display:flex;
+  overflow-x:auto;
+  gap:12px;
+  margin-bottom:14px;
+  padding-bottom:6px;
+  scroll-snap-type:x mandatory;
+  scrollbar-width:none;
+}
+.cards::-webkit-scrollbar{ height:0; }
+
+.card{
+  min-width:260px;
+  padding:18px;
+  border-radius:22px;
+  color:black;
+  cursor:pointer;
+  position:relative;
+  scroll-snap-align:start;
+  animation: pop .35s var(--ease) both;
+  overflow:hidden;
+}
+.card::before{
+  content:"";
+  position:absolute; inset:-2px;
+  background: var(--card-grad, var(--g1));
+  z-index:-2;
+}
+.card::after{
+  content:"";
+  position:absolute; inset:0;
+  background: radial-gradient(520px 220px at 10% 10%, rgba(255,255,255,.28), rgba(255,255,255,0) 55%);
+  z-index:-1;
+  opacity:.70;
+}
+.card .balance{ font-size:26px; font-weight:900; }
+.card .cardnum{ margin-top:6px; font-size:14px; opacity:.92; }
+
+.del-card{
+  position:absolute; top:12px; right:12px;
+  width:34px; height:34px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.18);
+  background:rgba(255,255,255,.35);
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px;
+}
+.del-card:hover{ filter:brightness(1.08); }
+
+.add-card{
+  min-width:100px;
+  display:flex; justify-content:center; align-items:center;
+  background:var(--card);
+  border-radius:22px;
+  font-size:28px;
+  cursor:pointer;
+  border:1px solid var(--border);
+  color:var(--text);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  animation: pop .35s var(--ease) both;
+}
+
+/* panels */
+.panel{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:12px;
+  margin-bottom:12px;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  animation: fadeUp .5s var(--ease) both;
+  position:relative;
+  overflow:hidden;
+}
+.panel.sparkle::after{
+  content:"";
+  position:absolute; inset:-40%;
+  background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.14), rgba(255,255,255,0));
+  transform: translateX(-70%) rotate(10deg);
+  animation:sparkle 2.8s var(--ease2) infinite;
+  pointer-events:none;
+}
+
+.section-title{
+  font-size:12px;
+  color:var(--muted);
+  margin:8px 2px 10px;
+}
+
+/* stats */
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:12px;
+}
+.stat{
+  padding:12px 10px;
+  border-radius:18px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  position:relative;
+  overflow:hidden;
+}
+.stat::after{
+  content:"";
+  position:absolute; inset:-40%;
+  background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.12), rgba(255,255,255,0));
+  transform: translateX(-70%) rotate(10deg);
+  opacity:.55;
+  animation:sparkle 3.6s var(--ease2) infinite;
+}
+.stat .k{ font-size:11px; color:var(--muted); }
+.stat .v{ margin-top:6px; font-weight:900; font-size:14px; }
+
+/* inputs */
+input{
+  width:100%;
+  padding:12px;
+  border-radius:14px;
+  margin-bottom:10px;
+  background:var(--field);
+  color:var(--text);
+  outline:none;
+  border:1px solid var(--border);
+}
+input:focus{ box-shadow:0 0 0 2px rgba(255,204,0,.18); }
+input::placeholder{ color: color-mix(in srgb, var(--muted) 85%, transparent); }
+
+/* buttons */
+.btn{
+  width:100%;
+  padding:12px;
+  border-radius:16px;
+  border:none;
+  background:var(--accent);
+  color:black;
+  font-weight:900;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+}
+.btn::after{
+  content:"";
+  position:absolute; inset:-40%;
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.32), rgba(255,255,255,0));
+  transform: translateX(-70%) rotate(10deg);
+  opacity:.55;
+  transition: transform .75s var(--ease2);
+}
+.btn:hover::after{ transform: translateX(70%) rotate(10deg); }
+
+.btn-ghost{
+  width:100%;
+  padding:12px;
+  border-radius:16px;
+  background:transparent;
+  color:var(--text);
+  border:1px solid var(--border);
+  font-weight:900;
+  cursor:pointer;
+}
+
+/* chips row */
+.chips{
+  display:flex; gap:8px;
+  margin-bottom:10px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.chips::-webkit-scrollbar{ height:0; }
+.chip{
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+  font-size:12px;
+  color:var(--text);
+  cursor:pointer;
+  white-space:nowrap;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+}
+.chip:hover{ filter:brightness(1.06); }
+
+/* categories */
+.cats-wrap{ position:relative; margin-bottom:12px; }
+.cats{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding-bottom:6px;
+  scrollbar-width:none;
+  scroll-behavior:smooth;
+}
+.cats::-webkit-scrollbar{ height:0; }
+.cats-wrap::before,.cats-wrap::after{
+  content:"";
+  position:absolute; top:0; bottom:0; width:28px;
+  pointer-events:none; z-index:2;
+  opacity:.95;
+}
+.cats-wrap::before{ left:-2px; background: linear-gradient(90deg, var(--card), rgba(0,0,0,0)); }
+.cats-wrap::after{ right:-2px; background: linear-gradient(270deg, var(--card), rgba(0,0,0,0)); }
+:root[data-theme="glass"] .cats-wrap::before{ background: linear-gradient(90deg, rgba(255,255,255,.085), rgba(0,0,0,0)); }
+:root[data-theme="glass"] .cats-wrap::after{ background: linear-gradient(270deg, rgba(255,255,255,.085), rgba(0,0,0,0)); }
+
+.cat{
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+  font-size:12px;
+  color:var(--text);
+  cursor:pointer;
+  user-select:none;
+  white-space:nowrap;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+}
+.cat.active{
+  border-color: rgba(255,204,0,.45);
+  background: rgba(255,204,0,.18);
+}
+.cat.drop-target{ outline:2px solid rgba(255,204,0,.35); }
+
+/* tiny scroll indicator */
+.cats-indicator{
+  height:4px;
+  border-radius:999px;
+  background: rgba(255,255,255,.08);
+  overflow:hidden;
+  border:1px solid var(--border);
+  margin-top:6px;
+}
+.cats-indicator > div{
+  height:100%;
+  width:30%;
+  border-radius:999px;
+  background: rgba(255,204,0,.55);
+  transform: translateX(0%);
+  transition: transform .25s var(--ease);
+}
+
+/* filters */
+.filters{
+  display:flex;
+  gap:8px;
+  margin-bottom:10px;
+}
+.seg{
+  flex:1;
+  padding:10px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+  cursor:pointer;
+  text-align:center;
+  font-weight:900;
+}
+.seg.active{
+  background: rgba(255,204,0,.18);
+  border-color: rgba(255,204,0,.45);
+}
+
+/* custom select (no white system dropdown) */
+.row{ display:flex; gap:10px; margin-bottom:10px; }
+.row > *{ flex:1; }
+
+.sel{
+  position:relative;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:var(--field);
+  padding:12px 12px;
+  cursor:pointer;
+  user-select:none;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+.sel .label{ font-weight:900; }
+.sel .chev{ opacity:.75; transform:translateY(1px); }
+.sel.open{ box-shadow:0 0 0 2px rgba(255,204,0,.14); }
+
+.sel-menu{
+  position:absolute;
+  left:0; right:0;
+  top:calc(100% + 8px);
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  display:none;
+  z-index:30;
+  animation: pop .18s var(--ease) both;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+}
+.sel.open .sel-menu{ display:block; }
+
+.sel-item{
+  padding:12px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+  border-top:1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+.sel-item:first-child{ border-top:none; }
+.sel-item:hover{ filter:brightness(1.08); }
+.sel-item.active{ background: rgba(255,204,0,.15); }
+.sel-item .sub{ font-size:12px; color:var(--muted); font-weight:700; }
+
+/* transactions */
+.transaction{
+  background:var(--field);
+  border:1px solid var(--border);
+  padding:12px;
+  border-radius:18px;
+  margin-bottom:8px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  user-select:none;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  animation: fadeUp .28s var(--ease) both;
+  position:relative;
+  overflow:hidden;
+}
+.transaction::after{
+  content:"";
+  position:absolute; inset:-40%;
+  background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.10), rgba(255,255,255,0));
+  transform: translateX(-70%) rotate(10deg);
+  opacity:.0;
+  transition: opacity .2s var(--ease);
+}
+.transaction:hover::after{ opacity:.45; animation:sparkle 2.2s var(--ease2) infinite; }
+
+.transaction .meta{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.transaction .tag{ font-size:11px; color:var(--muted); }
+.income{ color:var(--green); font-weight:900; }
+.expense{ color:var(--red); font-weight:900; }
+
+/* extra dashboard section */
+.dashboard{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+  margin-bottom:12px;
+}
+.grid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.tile{
+  padding:12px;
+  border-radius:22px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  position:relative;
+  overflow:hidden;
+  animation: pop .35s var(--ease) both;
+}
+.tile.sparkle::after{
+  content:"";
+  position:absolute; inset:-40%;
+  background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.12), rgba(255,255,255,0));
+  transform: translateX(-70%) rotate(10deg);
+  animation:sparkle 3.2s var(--ease2) infinite;
+  opacity:.55;
+}
+.tile .t{ font-weight:900; font-size:13px; }
+.tile .s{ margin-top:6px; font-size:12px; color:var(--muted); }
+.tile .big{ margin-top:8px; font-weight:900; font-size:18px; }
+
+.ring{
+  width:74px; height:74px;
+  border-radius:50%;
+  border:1px solid var(--border);
+  display:grid; place-items:center;
+  background:rgba(255,255,255,.04);
+  position:absolute; right:10px; top:10px;
+}
+.ring::before{
+  content:"";
+  width:58px;height:58px;border-radius:50%;
+  border:3px solid rgba(255,204,0,.25);
+  border-top-color: rgba(255,204,0,.85);
+  animation: ringSpin 2.6s linear infinite;
+}
+.ring span{ position:absolute; font-size:11px; color:var(--muted); font-weight:900; }
+
+/* chart */
+.chart-wrap{
+  padding:12px;
+  border-radius:24px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  position:relative;
+  overflow:hidden;
+}
+.chart-wrap canvas{ width:100%; height:120px; display:block; }
+.chart-wrap .cap{ font-weight:900; font-size:13px; }
+.chart-wrap .sub{ font-size:12px; color:var(--muted); margin-top:4px; }
+
+/* ===================== MODALS ===================== */
+.modal{
+  position:fixed; inset:0;
+  display:none;
+  align-items:center; justify-content:center;
+  padding:18px;
+  background:var(--overlay);
+  z-index:999;
+}
+.modal.open{ display:flex; animation:fadeIn .18s var(--ease) both; }
+.modal-card{
+  width:min(440px,100%);
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:14px;
+  box-shadow:var(--shadow);
+  animation: pop .22s var(--ease) both;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  position:relative;
+  overflow:hidden;
+}
+.modal-card::after{
+  content:"";
+  position:absolute; inset:-40%;
+  background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.12), rgba(255,255,255,0));
+  transform: translateX(-70%) rotate(10deg);
+  animation:sparkle 3.6s var(--ease2) infinite;
+  opacity:.45;
+  pointer-events:none;
+}
+.modal-title{ font-size:16px; font-weight:900; margin:4px 2px 6px; }
+.modal-sub{ font-size:12px; color:var(--muted); margin:0 2px 10px; }
+.modal-row{ display:flex; gap:10px; margin-top:10px; }
+.hint{ font-size:12px; margin:8px 2px 0; min-height:16px; }
+.hint.ok{ color:var(--green); }
+.hint.bad{ color:var(--red); }
+
+.theme-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:6px;
+}
+.theme-tile{
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:10px;
+  cursor:pointer;
+  background:var(--field);
+  overflow:hidden;
+}
+.theme-tile .preview{
+  height:34px;
+  border-radius:12px;
+  background: var(--grad);
+  background-size:200% 200%;
+  animation: shimmer 2.4s var(--ease2) infinite alternate;
+}
+.theme-tile .name{ margin-top:6px; font-size:12px; font-weight:900; }
+.theme-tile.active{
+  box-shadow:0 0 0 2px rgba(255,204,0,.18);
+  border-color: rgba(255,204,0,.45);
+}
+.smallnote{ font-size:12px; color:var(--muted); margin-top:10px; }
+
+/* ===================== TOASTS ===================== */
+.toasts{
+  position:fixed; left:0; right:0; bottom:14px;
+  display:flex; justify-content:center;
+  pointer-events:none;
+  z-index:1200;
+}
+.toast{
+  pointer-events:none;
+  min-width:min(440px, calc(100% - 28px));
+  max-width:440px;
+  padding:12px 14px;
+  border-radius:20px;
+  border:1px solid var(--border);
+  background:rgba(20,20,22,.86);
+  color:white;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  box-shadow: var(--shadow);
+  animation: toastIn .22s var(--ease) both;
+}
+:root[data-theme="light"] .toast{
+  background:rgba(255,255,255,.92);
+  color:#0b0b0c;
+}
+.toast.out{ animation: toastOut .22s var(--ease) both; }
+.toast-title{ font-weight:900; font-size:13px; }
+.toast-sub{ font-size:12px; opacity:.82; margin-top:2px; }
+
+/* ===================== FOOTER DECOR ===================== */
+.footer-decor{
+  padding:14px 10px 6px;
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  opacity:.85;
+  animation: fadeUp .5s var(--ease) both;
+}
+.footer-decor b{ color: color-mix(in srgb, var(--accent) 70%, white); }
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 360px){
+  .keypad{ grid-template-columns:repeat(3,78px); }
+  .stats{ grid-template-columns:1fr; }
+  .grid2{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg-stage" id="bgStage">
+  <div class="grid"></div>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="noise"></div>
+</div>
+
+<!-- PIN -->
+<div class="pin-screen" id="pinScreen">
+  <div class="pin-title">Введіть PIN</div>
+  <div class="pin-sub">Вхід у NeoBank</div>
+  <div class="pin-dots" id="dots"></div>
+  <div class="pin-hint"><span class="mini"></span> Порада: PIN можна змінити в налаштуваннях після входу</div>
+  <div class="keypad" id="keypad"></div>
+</div>
+
+<!-- Auth OK -->
+<div class="auth-ok" id="authOk">
+  <div class="auth-ok-card">
+    <div class="ok-ring">
+      <svg class="ok-svg" viewBox="0 0 52 52" aria-hidden="true">
+        <path class="ok-path" d="M14 27 L23 36 L38 18"></path>
+      </svg>
+    </div>
+    <div class="ok-title">Авторизація успішна</div>
+    <div class="ok-sub">Ласкаво просимо 👋</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="title">NeoBank</div>
+      <div class="sub">Торкніться картки — перемкнути. Утримайте транзакцію — змінити категорію.</div>
+    </div>
+    <div class="actions">
+      <div class="pill" id="activeInfo">—</div>
+      <div class="icon-btn" title="Налаштування" onclick="openSettingsModal()">⚙️</div>
+      <div class="icon-btn" title="Вийти" onclick="logout()">⎋</div>
+    </div>
+  </div>
+
+  <!-- decorative badges -->
+  <div class="header-decor">
+    <div class="badge float">✨ Premium UI</div>
+    <div class="badge float">🫧 Liquid Glass</div>
+    <div class="badge float">⚡ Ultra Smooth</div>
+    <div class="badge float">🔒 Secure PIN</div>
+    <div class="badge float">📈 Live Stats</div>
+    <div class="badge float">🎛 Filters</div>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <div class="panel sparkle">
+    <div class="stats">
+      <div class="stat"><div class="k">Баланс</div><div class="v" id="statBal">—</div></div>
+      <div class="stat"><div class="k">Дохід (міс.)</div><div class="v" id="statIn">—</div></div>
+      <div class="stat"><div class="k">Витрати (міс.)</div><div class="v" id="statOut">—</div></div>
+    </div>
+
+    <div class="dashboard">
+      <div class="chart-wrap">
+        <div class="cap">Активність</div>
+        <div class="sub">Останні 14 днів (демо-графік від ваших транзакцій)</div>
+        <canvas id="sparkChart" width="800" height="240"></canvas>
+      </div>
+
+      <div class="grid2">
+        <div class="tile sparkle">
+          <div class="t">Стан рахунку</div>
+          <div class="s">Поточна картка</div>
+          <div class="big" id="tileBal">—</div>
+          <div class="ring"><span>LIVE</span></div>
+        </div>
+        <div class="tile sparkle">
+          <div class="t">Порада дня</div>
+          <div class="s">Міні-порада для економії</div>
+          <div class="big" id="tipDay">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Категорії (на ПК можна перетягувати транзакції на категорію)</div>
+    <div class="cats-wrap">
+      <div class="cats" id="cats"></div>
+      <div class="cats-indicator"><div id="catsProg"></div></div>
+    </div>
+
+    <div class="filters">
+      <div class="seg active" id="segAll" onclick="setTypeFilter('all')">Усі</div>
+      <div class="seg" id="segIn" onclick="setTypeFilter('income')">Дохід</div>
+      <div class="seg" id="segOut" onclick="setTypeFilter('expense')">Витрати</div>
+    </div>
+
+    <input id="search" placeholder="Пошук транзакцій (опис/категорія)" oninput="renderAll()" />
+
+    <div class="row">
+      <div class="sel" id="selType" onclick="toggleSel('selType')">
+        <div class="label" id="selTypeLabel">Дохід</div>
+        <div class="chev">▾</div>
+        <div class="sel-menu" id="selTypeMenu"></div>
+      </div>
+
+      <div class="sel" id="selCat" onclick="toggleSel('selCat')">
+        <div class="label" id="selCatLabel">Їжа</div>
+        <div class="chev">▾</div>
+        <div class="sel-menu" id="selCatMenu"></div>
+      </div>
+    </div>
+
+    <input type="text" id="desc" placeholder="Опис (наприклад: Кава)" />
+    <input type="number" id="amount" placeholder="Сума" />
+
+    <div class="chips">
+      <div class="chip" onclick="addQuick(100)">+100</div>
+      <div class="chip" onclick="addQuick(500)">+500</div>
+      <div class="chip" onclick="addQuick(1000)">+1000</div>
+      <div class="chip" onclick="focusAmount()">Ввести суму</div>
+      <div class="chip" onclick="randomTip()">🎲 Нова порада</div>
+    </div>
+
+    <button class="btn" type="button" onclick="addTransaction()">Додати транзакцію</button>
+  </div>
+
+  <div class="section-title">Транзакції</div>
+  <div id="transactions"></div>
+
+  <div class="footer-decor">
+  </div>
+</div>
+
+<!-- Toasts -->
+<div class="toasts" id="toasts"></div>
+
+<!-- MODAL: ADD CARD -->
+<div class="modal" id="cardModal" onclick="onModalBackdrop(event,'cardModal')">
+  <div class="modal-card">
+    <div class="modal-title">Додати картку</div>
+    <div class="modal-sub">Введіть 16 цифр номера картки</div>
+
+    <input id="cardNumberInput" inputmode="numeric" autocomplete="off"
+      placeholder="0000 0000 0000 0000" maxlength="19" />
+    <div class="hint" id="cardHint"></div>
+
+    <div class="section-title">Градієнт картки</div>
+    <div class="theme-grid" id="cardGradGrid"></div>
+
+    <div class="modal-row">
+      <button class="btn-ghost" onclick="closeCardModal()">Скасувати</button>
+      <button class="btn" id="confirmAddCard" onclick="confirmAddCard()" disabled>Додати</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: MOVE CATEGORY -->
+<div class="modal" id="moveModal" onclick="onModalBackdrop(event,'moveModal')">
+  <div class="modal-card">
+    <div class="modal-title">Перемістити транзакцію</div>
+    <div class="modal-sub">Оберіть категорію</div>
+    <div class="theme-grid" id="moveCatGrid"></div>
+    <div class="modal-row">
+      <button class="btn-ghost" onclick="closeMoveModal()">Закрити</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SETTINGS -->
+<div class="modal" id="settingsModal" onclick="onModalBackdrop(event,'settingsModal')">
+  <div class="modal-card">
+    <div class="modal-title">Налаштування</div>
+    <div class="modal-sub">Тема, PIN, категорії, дані</div>
+
+    <div class="section-title" style="margin-top:0;">Тема</div>
+    <div class="theme-grid" id="themeGrid"></div>
+    <div class="smallnote">💡 Liquid Glass виглядає найкраще на темному фоні.</div>
+
+    <div class="section-title">PIN-код</div>
+    <button class="btn-ghost" onclick="openChangePinModal()">Змінити PIN</button>
+
+    <div class="section-title">Категорії</div>
+    <input id="newCat" placeholder="Додати категорію (наприклад: Освіта)" />
+    <button class="btn-ghost" onclick="addCategory()">Додати категорію</button>
+
+    <div class="section-title">Дані</div>
+    <div class="row">
+      <button class="btn-ghost" onclick="exportData()">Експорт JSON</button>
+      <button class="btn-ghost" onclick="openImportModal()">Імпорт JSON</button>
+    </div>
+    <button class="btn-ghost" onclick="confirmReset()">Скинути все (обережно)</button>
+
+    <div class="modal-row">
+      <button class="btn-ghost" onclick="closeSettingsModal()">Закрити</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CHANGE PIN -->
+<div class="modal" id="pinModal" onclick="onModalBackdrop(event,'pinModal')">
+  <div class="modal-card">
+    <div class="modal-title">Зміна PIN</div>
+    <div class="modal-sub">Введіть старий PIN, потім новий</div>
+
+    <input id="oldPin" inputmode="numeric" maxlength="4" placeholder="Старий PIN (4 цифри)">
+    <input id="newPin" inputmode="numeric" maxlength="4" placeholder="Новий PIN (4 цифри)">
+    <input id="newPin2" inputmode="numeric" maxlength="4" placeholder="Повторіть новий PIN">
+    <div class="hint" id="pinHint"></div>
+
+    <div class="modal-row">
+      <button class="btn-ghost" onclick="closeChangePinModal()">Скасувати</button>
+      <button class="btn" onclick="saveNewPin()">Зберегти</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: IMPORT -->
+<div class="modal" id="importModal" onclick="onModalBackdrop(event,'importModal')">
+  <div class="modal-card">
+    <div class="modal-title">Імпорт JSON</div>
+    <div class="modal-sub">Вставте JSON з експорту (дані перезапишуться)</div>
+    <input id="importInput" placeholder='{"pin":"1234",...}' />
+    <div class="hint" id="importHint"></div>
+    <div class="modal-row">
+      <button class="btn-ghost" onclick="closeImportModal()">Скасувати</button>
+      <button class="btn" onclick="importData()">Імпортувати</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CONFIRM -->
+<div class="modal" id="confirmModal" onclick="onModalBackdrop(event,'confirmModal')">
+  <div class="modal-card">
+    <div class="modal-title" id="confirmTitle">Підтвердження</div>
+    <div class="modal-sub" id="confirmText">Ви впевнені?</div>
+    <div class="modal-row">
+      <button class="btn-ghost" id="confirmCancelBtn">Скасувати</button>
+      <button class="btn" id="confirmOkBtn">Так</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== STORAGE / STATE ===================== */
+const STORAGE_KEY = "neobank_super_ui_v1";
+
+let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+  pin: "1234",
+  theme: "dark",
+  cards: [],
+  active: null,
+  categories: ["Їжа","Транспорт","Дім","Розваги","Здоров'я","Покупки","Інше"],
+  ui: {
+    cardGrad: "--g1",
+    type: "income",
+    typeFilter: "all",
+    cat: "Їжа",
+    catFilter: "Усі"
+  }
+};
+
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+/* ===================== UI HELPERS ===================== */
+function $(id){ return document.getElementById(id); }
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
+}
+function digitsOnly(str){ return (str || "").replace(/\D/g,""); }
+function formatCardNumber(d){ return d.replace(/(.{4})/g,"$1 ").trim(); }
+function isValidCardNumber(d){ return /^\d{16}$/.test(d); }
+function maskCardNumber(d16){
+  const d = digitsOnly(d16);
+  if(d.length !== 16) return "---- •••• •••• ----";
+  return `${d.slice(0,4)} •••• •••• ${d.slice(12,16)}`;
+}
+function getActiveCard(){ return state.cards.find(c => c.id === state.active) || null; }
+
+/* ===================== TOASTS ===================== */
+let toastTimer=null;
+function toast(title, sub=""){
+  const box = $("toasts");
+  box.innerHTML="";
+  const t = document.createElement("div");
+  t.className="toast";
+  t.innerHTML = `<div class="toast-title">${escapeHtml(title)}</div>${sub?`<div class="toast-sub">${escapeHtml(sub)}</div>`:""}`;
+  box.appendChild(t);
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{
+    t.classList.add("out");
+    setTimeout(()=> box.innerHTML="", 240);
+  }, 1600);
+}
+
+/* ===================== THEME ===================== */
+const THEMES = [
+  { key:"dark", name:"Темна", grad:"var(--g1)" },
+  { key:"light", name:"Світла", grad:"var(--g8)" },
+  { key:"glass", name:"Liquid Glass", grad:"var(--g2)" },
+  { key:"t1", name:"Ocean", grad:"var(--g2)" },
+  { key:"t2", name:"Sakura", grad:"var(--g3)" },
+  { key:"t3", name:"Mint", grad:"var(--g4)" },
+  { key:"t4", name:"Sunset", grad:"var(--g5)" },
+  { key:"t5", name:"Abyss", grad:"var(--g6)" },
+  { key:"t6", name:"Candy", grad:"var(--g7)" },
+  { key:"t7", name:"Sky", grad:"var(--g8)" },
+  { key:"t8", name:"Violet", grad:"var(--g9)" },
+  { key:"t9", name:"Gold", grad:"var(--g10)" },
+  { key:"t10", name:"Fire", grad:"var(--g11)" },
+  { key:"t11", name:"Forest", grad:"var(--g12)" },
+];
+
+function applyTheme(){
+  // main themes: dark/light/glass; extra themes treated as dark variant but with bg tweak
+  const t = state.theme || "dark";
+  if(t === "light" || t === "glass" || t === "dark"){
+    document.documentElement.dataset.theme = t;
+  } else {
+    document.documentElement.dataset.theme = "dark";
+  }
+
+  // background tint for extra themes
+  const bg = $("bgStage");
+  if(bg){
+    bg.style.filter = (t === "t5" || t === "t9") ? "saturate(1.15) contrast(1.05)" : "none";
+  }
+}
+
+function renderThemeGrid(){
+  const grid = $("themeGrid");
+  if(!grid) return;
+  grid.innerHTML = "";
+  THEMES.slice(0,12).forEach(th=>{
+    const tile = document.createElement("div");
+    tile.className = "theme-tile" + ((state.theme===th.key)? " active":"");
+    tile.innerHTML = `<div class="preview" style="--grad:${th.grad}"></div><div class="name">${th.name}</div>`;
+    tile.onclick = ()=>{
+      state.theme = th.key;
+      save();
+      applyTheme();
+      renderThemeGrid();
+      toast("Тему змінено", th.name);
+    };
+    grid.appendChild(tile);
+  });
+}
+
+/* ===================== PIN SCREEN ===================== */
+let enteredPin="";
+function setupPin(){
+  const dots = $("dots");
+  dots.innerHTML="";
+  for(let i=0;i<4;i++){
+    const d=document.createElement("div");
+    d.className="dot";
+    dots.appendChild(d);
+  }
+  const keypad = $("keypad");
+  keypad.innerHTML="";
+  for(let i=1;i<=9;i++) createKey(i);
+  createKey("←"); createKey(0); createKey("OK");
+  updateDots();
+}
+
+function createKey(value){
+  const k=document.createElement("div");
+  k.className="key";
+  k.innerText=value;
+  k.onclick=()=>handleKey(value);
+  $("keypad").appendChild(k);
+}
+
+function updateDots(){
+  document.querySelectorAll(".dot").forEach((dot,i)=>{
+    dot.classList.toggle("filled", i < enteredPin.length);
+  });
+}
+
+function authOkOverlay(){
+  const o = $("authOk");
+  o.classList.add("show");
+  setTimeout(()=>o.classList.remove("show"), 900);
+}
+
+function handleKey(value){
+  if(value==="←"){
+    enteredPin = enteredPin.slice(0,-1);
+  } else if(value==="OK"){
+    checkPin();
+    return;
+  } else if(enteredPin.length<4){
+    enteredPin += String(value);
+  }
+  updateDots();
+}
+
+function checkPin(){
+  const ok = (enteredPin === (state.pin || "1234"));
+  if(ok){
+    authOkOverlay();
+    setTimeout(()=>{
+      $("pinScreen").style.display="none";
+      $("app").style.display="block";
+      initApp();
+    }, 520);
+    return;
+  }
+  enteredPin="";
+  updateDots();
+  const dots = $("dots");
+  dots.classList.remove("shake");
+  void dots.offsetWidth;
+  dots.classList.add("shake");
+  toast("Невірний PIN", "Спробуйте ще раз");
+}
+
+/* ===================== APP INIT ===================== */
+function initApp(){
+  applyTheme();
+
+  // first card if none
+  if(state.cards.length===0){
+    openCardModal(true);
+  }
+  if(!state.active && state.cards.length){
+    state.active = state.cards[0].id;
+  }
+
+  // defaults
+  if(!state.ui) state.ui = { type:"income", typeFilter:"all", cat:"Їжа", catFilter:"Усі", cardGrad:"--g1" };
+  if(!state.ui.cat) state.ui.cat = state.categories[0] || "Їжа";
+
+  renderAll();
+  randomTip(false);
+  drawSparkChart();
+  setupParallax();
+}
+
+/* ===================== CUSTOM SELECTS ===================== */
+function toggleSel(id){
+  // close others
+  ["selType","selCat"].forEach(x=>{
+    if(x!==id) $(x).classList.remove("open");
+  });
+  $(id).classList.toggle("open");
+}
+document.addEventListener("click",(e)=>{
+  const inSel = e.target.closest(".sel");
+  if(!inSel){
+    ["selType","selCat"].forEach(x=> $(x).classList.remove("open"));
+  }
+});
+
+function renderSelects(){
+  // Type select
+  const typeMenu = $("selTypeMenu");
+  const typeLabel = $("selTypeLabel");
+  const curType = state.ui.type || "income";
+  typeLabel.textContent = (curType==="income" ? "Дохід" : "Витрата");
+  typeMenu.innerHTML="";
+  [
+    {v:"income", t:"Дохід", s:"Додає до балансу"},
+    {v:"expense", t:"Витрата", s:"Віднімає з балансу"}
+  ].forEach(o=>{
+    const it=document.createElement("div");
+    it.className="sel-item" + (curType===o.v ? " active":"");
+    it.innerHTML = `<div>${o.t}</div><div class="sub">${o.s}</div>`;
+    it.onclick=(ev)=>{
+      ev.stopPropagation();
+      state.ui.type=o.v;
+      save();
+      $("selType").classList.remove("open");
+      renderSelects();
+      toast("Тип операції", o.t);
+    };
+    typeMenu.appendChild(it);
+  });
+
+  // Cat select
+  const catMenu = $("selCatMenu");
+  const catLabel = $("selCatLabel");
+  const curCat = state.ui.cat || (state.categories[0] || "Їжа");
+  catLabel.textContent = curCat;
+  catMenu.innerHTML="";
+  state.categories.forEach(c=>{
+    const it=document.createElement("div");
+    it.className="sel-item" + (curCat===c ? " active":"");
+    it.innerHTML = `<div>${escapeHtml(c)}</div><div class="sub">Категорія</div>`;
+    it.onclick=(ev)=>{
+      ev.stopPropagation();
+      state.ui.cat=c;
+      save();
+      $("selCat").classList.remove("open");
+      renderSelects();
+      toast("Категорія", c);
+    };
+    catMenu.appendChild(it);
+  });
+}
+
+/* ===================== CATEGORIES BAR ===================== */
+function renderCategories(){
+  const cats = $("cats");
+  cats.innerHTML="";
+
+  const all = document.createElement("div");
+  all.className = "cat" + ((state.ui.catFilter||"Усі")==="Усі" ? " active":"");
+  all.textContent="Усі";
+  all.onclick=()=>{ state.ui.catFilter="Усі"; save(); renderAll(); };
+  cats.appendChild(all);
+
+  state.categories.forEach(cat=>{
+    const chip=document.createElement("div");
+    chip.className="cat" + ((state.ui.catFilter||"Усі")===cat ? " active":"");
+    chip.textContent=cat;
+    chip.onclick=()=>{ state.ui.catFilter=cat; save(); renderAll(); };
+
+    chip.addEventListener("dragover",(e)=>{ e.preventDefault(); chip.classList.add("drop-target"); });
+    chip.addEventListener("dragleave",()=> chip.classList.remove("drop-target"));
+    chip.addEventListener("drop",(e)=>{
+      e.preventDefault();
+      chip.classList.remove("drop-target");
+      const tid = e.dataTransfer.getData("text/plain");
+      if(tid) moveTransactionToCategory(Number(tid), cat);
+    });
+
+    cats.appendChild(chip);
+  });
+
+  // scroll indicator
+  requestAnimationFrame(updateCatsIndicator);
+}
+function updateCatsIndicator(){
+  const cats = $("cats");
+  const prog = $("catsProg");
+  if(!cats || !prog) return;
+  const max = cats.scrollWidth - cats.clientWidth;
+  const x = max<=0 ? 0 : (cats.scrollLeft / max);
+  const travel = (1 - 0.30) * 100; // bar width 30%
+  prog.style.transform = `translateX(${x*travel}%)`;
+}
+function attachCatsScroll(){
+  const cats = $("cats");
+  if(!cats) return;
+  cats.addEventListener("scroll", ()=> updateCatsIndicator(), {passive:true});
+}
+
+/* ===================== CARDS ===================== */
+const CARD_GRADS = [
+  {key:"--g1", name:"Gold", grad:"var(--g1)"},
+  {key:"--g2", name:"Ocean", grad:"var(--g2)"},
+  {key:"--g3", name:"Sakura", grad:"var(--g3)"},
+  {key:"--g4", name:"Mint", grad:"var(--g4)"},
+  {key:"--g5", name:"Sunset", grad:"var(--g5)"},
+  {key:"--g6", name:"Abyss", grad:"var(--g6)"},
+  {key:"--g7", name:"Candy", grad:"var(--g7)"},
+  {key:"--g8", name:"Sky", grad:"var(--g8)"},
+  {key:"--g9", name:"Violet", grad:"var(--g9)"},
+  {key:"--g10", name:"Bright", grad:"var(--g10)"},
+  {key:"--g11", name:"Fire", grad:"var(--g11)"},
+  {key:"--g12", name:"Forest", grad:"var(--g12)"},
+];
+
+let modalMustAddFirstCard=false;
+let pendingCardGrad="--g1";
+
+function openCardModal(must=false){
+  modalMustAddFirstCard = must;
+  $("cardModal").classList.add("open");
+  $("cardNumberInput").value="";
+  $("cardHint").textContent="";
+  $("cardHint").className="hint";
+  $("confirmAddCard").disabled=true;
+
+  pendingCardGrad = state.ui.cardGrad || "--g1";
+  renderCardGradGrid();
+  setTimeout(()=> $("cardNumberInput").focus(), 0);
+}
+
+function closeCardModal(){
+  if(modalMustAddFirstCard && state.cards.length===0){
+    toast("Спочатку додайте картку", "Це потрібно для роботи додатку");
+    return;
+  }
+  $("cardModal").classList.remove("open");
+}
+
+function renderCardGradGrid(){
+  const grid = $("cardGradGrid");
+  grid.innerHTML="";
+  CARD_GRADS.forEach(g=>{
+    const tile=document.createElement("div");
+    tile.className="theme-tile" + (pendingCardGrad===g.key ? " active":"");
+    tile.innerHTML = `<div class="preview" style="--grad:${g.grad}"></div><div class="name">${g.name}</div>`;
+    tile.onclick=()=>{
+      pendingCardGrad=g.key;
+      state.ui.cardGrad = g.key;
+      save();
+      renderCardGradGrid();
+      toast("Стиль картки", g.name);
+    };
+    grid.appendChild(tile);
+  });
+}
+
+(function setupCardInput(){
+  const input = $("cardNumberInput");
+  input.addEventListener("input", ()=>{
+    const digits = digitsOnly(input.value).slice(0,16);
+    input.value = formatCardNumber(digits);
+
+    const hint = $("cardHint");
+    const btn = $("confirmAddCard");
+
+    if(digits.length===0){
+      hint.textContent="";
+      hint.className="hint";
+      btn.disabled=true;
+      return;
+    }
+    if(digits.length<16){
+      hint.textContent = `Залишилось: ${16-digits.length} цифр`;
+      hint.className="hint";
+      btn.disabled=true;
+      return;
+    }
+    if(state.cards.some(c=>c.full===digits)){
+      hint.textContent="Така картка вже додана";
+      hint.className="hint bad";
+      btn.disabled=true;
+      return;
+    }
+    hint.textContent="Номер виглядає коректно";
+    hint.className="hint ok";
+    btn.disabled=false;
+  });
+
+  input.addEventListener("keydown",(e)=>{
+    if(e.key==="Enter" && !$("confirmAddCard").disabled) confirmAddCard();
+    if(e.key==="Escape") closeCardModal();
+  });
+})();
+
+function confirmAddCard(){
+  const digits = digitsOnly($("cardNumberInput").value);
+  if(!isValidCardNumber(digits)){
+    toast("Невірний номер", "Потрібно 16 цифр");
+    return;
+  }
+  if(state.cards.some(c=>c.full===digits)){
+    toast("Дубль картки", "Вже існує в списку");
+    return;
+  }
+  const id = Date.now();
+  state.cards.push({
+    id,
+    full: digits,
+    masked: maskCardNumber(digits),
+    balance: 0,
+    grad: pendingCardGrad || "--g1",
+    transactions: []
+  });
+  state.active = id;
+  save();
+  closeCardModal();
+  toast("Картку додано", state.cards[state.cards.length-1].masked);
+  renderAll();
+}
+
+function renderCards(){
+  const container = $("cards");
+  container.innerHTML="";
+
+  state.cards.forEach(card=>{
+    const div=document.createElement("div");
+    div.className="card";
+    div.style.opacity = (card.id===state.active) ? "1" : "0.86";
+    div.style.setProperty("--card-grad", `var(${card.grad || "--g1"})`);
+    div.innerHTML = `
+      <div class="balance">${card.balance.toFixed(2)} ₴</div>
+      <div class="cardnum">${card.masked}</div>
+      <div class="del-card" title="Видалити картку">🗑</div>
+    `;
+
+    div.onclick=(e)=>{
+      if(e.target && e.target.classList.contains("del-card")) return;
+      state.active = card.id;
+      save();
+      renderAll();
+    };
+
+    div.querySelector(".del-card").onclick=(e)=>{
+      e.stopPropagation();
+      confirmDialog(
+        "Видалити картку?",
+        `Картка ${card.masked} буде видалена разом із транзакціями.`,
+        "Видалити", "Скасувати", true,
+        ()=>deleteCard(card.id)
+      );
+    };
+
+    container.appendChild(div);
+  });
+
+  const add=document.createElement("div");
+  add.className="add-card";
+  add.innerText="+";
+  add.onclick=()=>openCardModal(false);
+  container.appendChild(add);
+}
+
+function deleteCard(cardId){
+  const idx = state.cards.findIndex(c=>c.id===cardId);
+  if(idx<0) return;
+
+  state.cards.splice(idx,1);
+
+  if(state.cards.length===0){
+    state.active=null;
+    save();
+    renderAll();
+    toast("Картку видалено", "Додайте нову картку");
+    openCardModal(true);
+    return;
+  }
+  if(state.active===cardId){
+    const next = state.cards[Math.min(idx, state.cards.length-1)];
+    state.active = next.id;
+  }
+  save();
+  toast("Картку видалено", "");
+  renderAll();
+}
+
+/* ===================== FILTERS / STATS ===================== */
+function setTypeFilter(v){
+  state.ui.typeFilter = v;
+  save();
+  $("segAll").classList.toggle("active", v==="all");
+  $("segIn").classList.toggle("active", v==="income");
+  $("segOut").classList.toggle("active", v==="expense");
+  renderAll();
+}
+function computeMonthStats(card){
+  const now = new Date();
+  const m = now.getMonth();
+  const y = now.getFullYear();
+  let inc=0, exp=0;
+  card.transactions.forEach(t=>{
+    // parse dd.mm.yyyy or locale; fallback: include all if parse fails
+    const d = parseDateLoose(t.date);
+    if(d && d.getMonth()===m && d.getFullYear()===y){
+      if(t.type==="income") inc += t.amount;
+      else exp += t.amount;
+    }
+  });
+  return {inc, exp};
+}
+function parseDateLoose(s){
+  // try uk-UA dd.mm.yyyy
+  if(!s) return null;
+  const m = String(s).match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+  if(m){
+    const dd=+m[1], mm=+m[2]-1, yy=+m[3];
+    return new Date(yy,mm,dd);
+  }
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+/* ===================== TRANSACTIONS ===================== */
+function focusAmount(){ $("amount").focus(); }
+
+function addQuick(v){
+  const a = $("amount");
+  const cur = parseFloat(a.value);
+  if(Number.isNaN(cur)) a.value = String(v);
+  else a.value = String((cur + v).toFixed(2));
+  a.focus();
+  toast("Швидке додавання", `+${v} ₴`);
+}
+
+let holdTimer=null;
+
+function addTransaction(){
+  const type = state.ui.type || "income";
+  const cat = state.ui.cat || (state.categories[0] || "Їжа");
+  const desc = $("desc").value.trim();
+  const amount = parseFloat($("amount").value);
+
+  if(!desc){
+    toast("Додайте опис", "Наприклад: Кава");
+    return;
+  }
+  if(Number.isNaN(amount) || amount<=0){
+    toast("Невірна сума", "Введіть число більше 0");
+    return;
+  }
+  const card = getActiveCard();
+  if(!card){
+    toast("Немає картки", "Додайте картку");
+    openCardModal(true);
+    return;
+  }
+
+  card.transactions.unshift({
+    id: Date.now(),
+    type,
+    category: cat,
+    desc,
+    amount,
+    date: new Date().toLocaleDateString("uk-UA")
+  });
+
+  card.balance += (type==="income") ? amount : -amount;
+
+  save();
+  $("desc").value="";
+  $("amount").value="";
+  toast("Додано", `${type==="income"?"+":"-"}${amount.toFixed(2)} ₴ • ${cat}`);
+  renderAll();
+}
+
+function openMoveModal(txId){
+  const grid = $("moveCatGrid");
+  grid.innerHTML="";
+  state.categories.forEach(cat=>{
+    const tile=document.createElement("div");
+    tile.className="theme-tile";
+    tile.innerHTML = `<div class="preview" style="--grad:var(--g8)"></div><div class="name">${escapeHtml(cat)}</div>`;
+    tile.onclick=()=> moveTransactionToCategory(txId, cat);
+    grid.appendChild(tile);
+  });
+  $("moveModal").classList.add("open");
+}
+function closeMoveModal(){ $("moveModal").classList.remove("open"); }
+
+function moveTransactionToCategory(txId, newCat){
+  const card = getActiveCard();
+  if(!card) return;
+  const tx = card.transactions.find(t=>t.id===txId);
+  if(!tx) return;
+  tx.category = newCat;
+  save();
+  closeMoveModal();
+  toast("Категорію змінено", newCat);
+  renderAll();
+}
+
+function renderTransactions(){
+  const container = $("transactions");
+  container.innerHTML="";
+
+  const card = getActiveCard();
+  if(!card){
+    container.innerHTML = `<div class="panel"><div class="section-title">Немає картки</div><div>Додайте картку, щоб побачити транзакції.</div></div>`;
+    return;
+  }
+
+  const q = ($("search").value || "").trim().toLowerCase();
+  const catFilter = state.ui.catFilter || "Усі";
+  const typeFilter = state.ui.typeFilter || "all";
+
+  let list = card.transactions.slice();
+
+  if(typeFilter !== "all"){
+    list = list.filter(t=>t.type===typeFilter);
+  }
+  if(catFilter !== "Усі"){
+    list = list.filter(t=>t.category===catFilter);
+  }
+  if(q){
+    list = list.filter(t =>
+      (t.desc||"").toLowerCase().includes(q) ||
+      (t.category||"").toLowerCase().includes(q)
+    );
+  }
+
+  if(list.length===0){
+    const empty = document.createElement("div");
+    empty.className="panel";
+    empty.innerHTML = `
+      <div class="section-title">Поки що порожньо</div>
+      <div style="font-weight:900;font-size:16px;margin:2px 0 6px;">Немає транзакцій за фільтрами</div>
+      <div style="color:var(--muted);font-size:12px;">Спробуйте змінити фільтр або додайте транзакцію ✨</div>
+    `;
+    container.appendChild(empty);
+    return;
+  }
+
+  list.forEach(t=>{
+    const div=document.createElement("div");
+    div.className="transaction";
+    div.draggable=true;
+
+    div.innerHTML = `
+      <div class="meta">
+        <div>${escapeHtml(t.desc)}</div>
+        <div class="tag">${escapeHtml(t.date)} • ${escapeHtml(t.category)}</div>
+      </div>
+      <div class="${t.type}">
+        ${t.type==="income"?"+":"-"}${t.amount.toFixed(2)} ₴
+      </div>
+    `;
+
+    div.addEventListener("dragstart",(e)=> e.dataTransfer.setData("text/plain", String(t.id)));
+
+    const startHold = ()=>{
+      clearTimeout(holdTimer);
+      holdTimer = setTimeout(()=> openMoveModal(t.id), 420);
+    };
+    const cancelHold = ()=>{ clearTimeout(holdTimer); holdTimer=null; };
+
+    div.addEventListener("touchstart", startHold, {passive:true});
+    div.addEventListener("touchend", cancelHold);
+    div.addEventListener("touchmove", cancelHold);
+
+    div.addEventListener("mousedown", startHold);
+    div.addEventListener("mouseup", cancelHold);
+    div.addEventListener("mouseleave", cancelHold);
+
+    container.appendChild(div);
+  });
+}
+
+/* ===================== SETTINGS / PIN ===================== */
+function openSettingsModal(){
+  renderThemeGrid();
+  $("settingsModal").classList.add("open");
+}
+function closeSettingsModal(){ $("settingsModal").classList.remove("open"); }
+
+function openChangePinModal(){
+  $("pinHint").textContent="";
+  $("pinHint").className="hint";
+  $("oldPin").value="";
+  $("newPin").value="";
+  $("newPin2").value="";
+  $("pinModal").classList.add("open");
+  setTimeout(()=> $("oldPin").focus(), 0);
+}
+function closeChangePinModal(){ $("pinModal").classList.remove("open"); }
+
+function saveNewPin(){
+  const oldP = digitsOnly($("oldPin").value);
+  const newP = digitsOnly($("newPin").value);
+  const newP2 = digitsOnly($("newPin2").value);
+  const hint = $("pinHint");
+
+  if(oldP.length!==4 || newP.length!==4 || newP2.length!==4){
+    hint.textContent="PIN має бути з 4 цифр";
+    hint.className="hint bad";
+    return;
+  }
+  if(oldP !== (state.pin || "1234")){
+    hint.textContent="Старий PIN невірний";
+    hint.className="hint bad";
+    return;
+  }
+  if(newP !== newP2){
+    hint.textContent="Нові PIN не співпадають";
+    hint.className="hint bad";
+    return;
+  }
+  if(newP === oldP){
+    hint.textContent="Новий PIN має відрізнятися";
+    hint.className="hint bad";
+    return;
+  }
+  state.pin = newP;
+  save();
+  hint.textContent="PIN успішно змінено";
+  hint.className="hint ok";
+  toast("PIN змінено", "Готово ✅");
+  setTimeout(()=>{ closeChangePinModal(); }, 450);
+}
+
+/* ===================== CATEGORIES MGMT ===================== */
+function addCategory(){
+  const v = ($("newCat").value || "").trim();
+  if(!v){
+    toast("Введіть назву", "Наприклад: Освіта");
+    return;
+  }
+  if(state.categories.includes(v)){
+    toast("Вже існує", v);
+    return;
+  }
+  state.categories.push(v);
+  state.ui.cat = v;
+  save();
+  $("newCat").value="";
+  toast("Категорію додано", v);
+  renderAll();
+}
+
+/* ===================== EXPORT / IMPORT / RESET ===================== */
+function exportData(){
+  const json = JSON.stringify(state);
+  navigator.clipboard?.writeText(json).then(()=>{
+    toast("Експортовано", "JSON скопійовано в буфер обміну");
+  }).catch(()=>{
+    toast("Експорт", "Скопіюйте вручну з консолі");
+    console.log(json);
+  });
+}
+
+function openImportModal(){
+  $("importHint").textContent="";
+  $("importHint").className="hint";
+  $("importInput").value="";
+  $("importModal").classList.add("open");
+  setTimeout(()=> $("importInput").focus(), 0);
+}
+function closeImportModal(){ $("importModal").classList.remove("open"); }
+
+function importData(){
+  const txt = ($("importInput").value || "").trim();
+  try{
+    const obj = JSON.parse(txt);
+    if(!obj || typeof obj !== "object") throw new Error("bad");
+    // minimal validation
+    if(!("pin" in obj) || !("cards" in obj) || !("categories" in obj)) throw new Error("schema");
+    state = obj;
+    save();
+    applyTheme();
+    closeImportModal();
+    closeSettingsModal();
+    toast("Імпорт успішний", "Дані оновлено");
+    renderAll();
+  }catch(e){
+    $("importHint").textContent="Невірний JSON або структура";
+    $("importHint").className="hint bad";
+  }
+}
+
+function confirmReset(){
+  confirmDialog(
+    "Скинути все?",
+    "Це видалить картки, транзакції та налаштування.",
+    "Скинути","Скасувати", true,
+    ()=>{
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+  );
+}
+
+/* ===================== CONFIRM MODAL ===================== */
+let confirmCb=null;
+function confirmDialog(title, text, okText, cancelText, danger, cb){
+  confirmCb = cb;
+  $("confirmTitle").textContent = title;
+  $("confirmText").textContent = text;
+  const ok = $("confirmOkBtn");
+  const cancel = $("confirmCancelBtn");
+  ok.textContent = okText || "Так";
+  cancel.textContent = cancelText || "Скасувати";
+  ok.style.background = danger ? "var(--red)" : "var(--accent)";
+  ok.style.color = danger ? "#fff" : "#000";
+  cancel.onclick = ()=> closeConfirm();
+  ok.onclick = ()=>{ const f=confirmCb; closeConfirm(); if(typeof f==="function") f(); };
+  $("confirmModal").classList.add("open");
+}
+function closeConfirm(){
+  $("confirmModal").classList.remove("open");
+  confirmCb=null;
+}
+
+/* ===================== MODAL BACKDROP ===================== */
+function onModalBackdrop(e, id){
+  if(e.target.id !== id) return;
+  if(id==="cardModal") closeCardModal();
+  if(id==="moveModal") closeMoveModal();
+  if(id==="settingsModal") closeSettingsModal();
+  if(id==="pinModal") closeChangePinModal();
+  if(id==="importModal") closeImportModal();
+  if(id==="confirmModal") closeConfirm();
+}
+
+/* ===================== ACTIVE INFO / STATS / TIPS ===================== */
+const TIPS = [
+  "Відкладіть 10% доходу 💛",
+  "Перевірте підписки — зайві можна вимкнути ✂️",
+  "Спробуйте ліміт на розваги цього тижня 🎮",
+  "Кава вдома = економія ☕",
+  "Плануйте покупки списком 🧾",
+  "Оберіть одну мету і йдіть маленькими кроками 🎯",
+  "Порівнюйте ціни перед покупкою 🔎",
+  "Фіксуйте витрати щодня 2 хвилини ⏱️",
+  "Раз на тиждень робіть ревізію бюджету 📊"
+];
+function randomTip(showToast=true){
+  const tip = TIPS[Math.floor(Math.random()*TIPS.length)];
+  $("tipDay").textContent = tip;
+  if(showToast) toast("Порада дня", tip);
+}
+function renderActiveInfo(){
+  const card = getActiveCard();
+  const cf = state.ui.catFilter || "Усі";
+  const tf = state.ui.typeFilter || "all";
+  const tfText = tf==="all" ? "Усі" : (tf==="income" ? "Дохід" : "Витрати");
+  $("activeInfo").textContent = card ? `Фільтр: ${cf} • ${tfText}` : "Немає картки";
+}
+
+function renderStats(){
+  const card = getActiveCard();
+  if(!card){
+    $("statBal").textContent="—";
+    $("statIn").textContent="—";
+    $("statOut").textContent="—";
+    $("tileBal").textContent="—";
+    return;
+  }
+  const {inc, exp} = computeMonthStats(card);
+  $("statBal").textContent = `${card.balance.toFixed(2)} ₴`;
+  $("statIn").textContent = `${inc.toFixed(2)} ₴`;
+  $("statOut").textContent = `${exp.toFixed(2)} ₴`;
+  $("tileBal").textContent = `${card.balance.toFixed(2)} ₴`;
+}
+
+/* ===================== SPARK CHART (CANVAS) ===================== */
+function drawSparkChart(){
+  const c = $("sparkChart");
+  if(!c) return;
+  const ctx = c.getContext("2d");
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const W = c.width, H = c.height;
+
+  function dataFromTx(){
+    const card = getActiveCard();
+    const days = 14;
+    const arr = new Array(days).fill(0);
+    if(!card) return arr;
+    const now = new Date();
+    for(const t of card.transactions){
+      const dt = parseDateLoose(t.date) || now;
+      const diff = Math.floor((now - dt) / (1000*60*60*24));
+      if(diff>=0 && diff<days){
+        arr[days-1-diff] += (t.type==="income" ? t.amount : -t.amount);
+      }
+    }
+    // smooth
+    return arr.map(x=>Math.max(-9999, Math.min(9999, x)));
+  }
+
+  function draw(){
+    const arr = dataFromTx();
+    ctx.clearRect(0,0,W,H);
+
+    // background grid lines
+    ctx.globalAlpha = 0.18;
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 1;
+    for(let i=1;i<6;i++){
+      const y = (H/6)*i;
+      ctx.beginPath();
+      ctx.moveTo(30,y);
+      ctx.lineTo(W-20,y);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    const min = Math.min(...arr, -1);
+    const max = Math.max(...arr, 1);
+    const pad = 18;
+    const innerW = W - 50;
+    const innerH = H - 40;
+    const x0 = 30, y0 = 18;
+
+    function mapX(i){ return x0 + (i/(arr.length-1))*innerW; }
+    function mapY(v){
+      const t = (v - min) / (max - min || 1);
+      return y0 + (1 - t) * innerH;
+    }
+
+    // glow line
+    ctx.lineJoin="round";
+    ctx.lineCap="round";
+
+    // area
+    ctx.beginPath();
+    ctx.moveTo(mapX(0), mapY(0));
+    for(let i=0;i<arr.length;i++){
+      ctx.lineTo(mapX(i), mapY(arr[i]));
+    }
+    ctx.lineTo(mapX(arr.length-1), y0+innerH);
+    ctx.lineTo(mapX(0), y0+innerH);
+    ctx.closePath();
+
+    // gradient fill
+    const grad = ctx.createLinearGradient(0,y0,0,y0+innerH);
+    grad.addColorStop(0, "rgba(255,204,0,0.35)");
+    grad.addColorStop(1, "rgba(255,204,0,0)");
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // line
+    ctx.beginPath();
+    for(let i=0;i<arr.length;i++){
+      const x=mapX(i), y=mapY(arr[i]);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle = "rgba(255,204,0,.95)";
+    ctx.lineWidth = 4;
+    ctx.shadowColor = "rgba(255,204,0,.25)";
+    ctx.shadowBlur = 14;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // points
+    for(let i=0;i<arr.length;i++){
+      const x=mapX(i), y=mapY(arr[i]);
+      ctx.beginPath();
+      ctx.arc(x,y,3.3,0,Math.PI*2);
+      ctx.fillStyle = "rgba(255,255,255,.90)";
+      ctx.fill();
+    }
+  }
+
+  draw();
+  // redraw when transactions change
+  window.__drawSparkChart = draw;
+}
+
+/* ===================== PARALLAX / DECOR ===================== */
+function setupParallax(){
+  const stage = $("bgStage");
+  if(!stage) return;
+
+  let mx=0,my=0;
+  function set(x,y){
+    mx=x; my=y;
+    stage.style.transform = `translate3d(${mx}px, ${my}px, 0)`;
+  }
+
+  window.addEventListener("mousemove",(e)=>{
+    const dx = (e.clientX / window.innerWidth - .5) * 10;
+    const dy = (e.clientY / window.innerHeight - .5) * 10;
+    set(dx, dy);
+  }, {passive:true});
+
+  window.addEventListener("deviceorientation",(e)=>{
+    if(e.beta==null || e.gamma==null) return;
+    const dx = Math.max(-10, Math.min(10, e.gamma/6));
+    const dy = Math.max(-10, Math.min(10, e.beta/10));
+    set(dx, dy);
+  }, {passive:true});
+}
+
+/* ===================== LOGOUT ===================== */
+function logout(){
+  $("app").style.display="none";
+  $("pinScreen").style.display="flex";
+  enteredPin="";
+  updateDots();
+  toast("Вихід", "Повернення до PIN");
+}
+
+/* ===================== RENDER ALL ===================== */
+function renderAll(){
+  renderThemeGrid(); // safe if modal closed
+  renderSelects();
+  renderCategories();
+  renderCards();
+  renderTransactions();
+  renderStats();
+  renderActiveInfo();
+  attachCatsScroll();
+
+  // update chart
+  if(window.__drawSparkChart) window.__drawSparkChart();
+}
+
+/* ===================== START ===================== */
+applyTheme();
+setupPin();
+</script>
+
+</body>
+</html>
