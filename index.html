@@ -1140,6 +1140,26 @@ input::placeholder{ color: color-mix(in srgb, var(--muted) 85%, transparent); }
 </div>
 
 <script>
+
+/* ===================== STORAGE / STATE ===================== */
+const STORAGE_KEY = "neobank_super_ui_v1";
+
+let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+  pin: "1234",
+  theme: "dark",
+  cards: [],
+  active: null,
+  categories: ["Їжа","Транспорт","Дім","Розваги","Здоров'я","Покупки","Інше"],
+  ui: {
+    cardGrad: "--g1",
+    type: "income",
+    typeFilter: "all",
+    cat: "Їжа",
+    catFilter: "Усі"
+  }
+};
+
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 (function NEOAUTH_V1(){
   // --- safety: если нет state/save/$ — выходим
   if(typeof window.state === "undefined" || typeof window.save !== "function" || typeof window.$ !== "function"){
@@ -1578,13 +1598,8 @@ input::placeholder{ color: color-mix(in srgb, var(--muted) 85%, transparent); }
 
   // --- Start behavior:
   // show AUTH first, then after login we show PIN screen.
-function startAuthFlow(){
-  hideAll();
-
-  // ⬇️ ВСЕГДА показываем AUTH при старте
-  openAuth();
-  showLogin();
-}
+  function startAuthFlow(){
+    hideAll();
 
     // если уже логинился ранее — можно сразу показать PIN экран
     if(state.session && state.session.loggedIn && state.session.user){
@@ -1609,27 +1624,6 @@ function startAuthFlow(){
   document.addEventListener("DOMContentLoaded", startAuthFlow);
 
 })(); // end NEOAUTH
-
-/* ===================== STORAGE / STATE ===================== */
-const STORAGE_KEY = "neobank_super_ui_v1";
-
-let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-  pin: "1234",
-  theme: "dark",
-  cards: [],
-  active: null,
-  categories: ["Їжа","Транспорт","Дім","Розваги","Здоров'я","Покупки","Інше"],
-  ui: {
-    cardGrad: "--g1",
-    type: "income",
-    typeFilter: "all",
-    cat: "Їжа",
-    catFilter: "Усі"
-  }
-};
-
-function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-
 /* ===================== UI HELPERS ===================== */
 function $(id){ return document.getElementById(id); }
 function escapeHtml(s){
@@ -2574,300 +2568,6 @@ function renderAll(){
   // update chart
   if(window.__drawSparkChart) window.__drawSparkChart();
 }
-
-/* ===================== START ===================== */
-applyTheme();
-
-document.addEventListener("DOMContentLoaded", () => {
-  showAuth();
-});
-/* ===== FIX AUTH + PIN AUTO START ===== */
-
-document.addEventListener("DOMContentLoaded", function(){
-
-  // если есть authScreen — показываем его
-  const auth = document.getElementById("authScreen");
-  const pin = document.getElementById("pinScreen");
-
-  if(auth){
-    auth.style.display = "flex";
-  }
-
-  if(pin){
-    pin.style.display = "none";
-  }
-
-});
-
-/* переопределяем showPin безопасно */
-window.showPin = function(){
-  const auth = document.getElementById("authScreen");
-  const pin = document.getElementById("pinScreen");
-
-  if(auth) auth.style.display = "none";
-  if(pin) pin.style.display = "flex";
-
-  if(typeof setupPin === "function"){
-    setupPin();
-  }
-};
-
-
-  .auth-card{
-  width:380px;
-  padding:30px;
-  border-radius:24px;
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(25px);
-  box-shadow:0 30px 80px rgba(0,0,0,.6);
-  display:flex;
-  flex-direction:column;
-  gap:16px;
-  animation:fadeUp .4s ease;
-}
-
-.auth-logo{
-  font-size:24px;
-  font-weight:900;
-  text-align:center;
-}
-
-.auth-sub{
-  font-size:13px;
-  text-align:center;
-  opacity:.7;
-  margin-bottom:10px;
-}
-
-.auth-card input{
-  padding:14px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.15);
-  background:rgba(0,0,0,.5);
-  color:white;
-}
-
-.auth-btn{
-  padding:14px;
-  border-radius:16px;
-  border:none;
-  background:var(--accent);
-  font-weight:800;
-  cursor:pointer;
-}
-
-.auth-switch{
-  text-align:center;
-  font-size:13px;
-  opacity:.7;
-}
-
-.auth-switch span{
-  color:var(--accent);
-  cursor:pointer;
-}
-.auth-switch span:hover{
-  text-decoration:underline;
-}
-
-
-<!-- ===================== FULL AUTH SYSTEM (PASTE AT VERY BOTTOM) ===================== -->
-<style>
-  /* AUTH UI (doesn't break your theme) */
-  .auth-screen{
-    position:fixed; inset:0;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:18px;
-    z-index:2000;
-  }
-  .auth-card{
-    width:min(420px, calc(100% - 28px));
-    border-radius:28px;
-    padding:18px;
-    background: rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.14);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 30px 95px rgba(0,0,0,.55);
-    overflow:hidden;
-    position:relative;
-    animation: fadeUp .35s var(--ease, ease) both;
-  }
-  .auth-card::after{
-    content:"";
-    position:absolute; inset:-40%;
-    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.12), rgba(255,255,255,0));
-    transform: translateX(-70%) rotate(10deg);
-    animation:sparkle 2.8s var(--ease2, ease) infinite;
-    opacity:.55;
-    pointer-events:none;
-  }
-  .auth-head{
-    text-align:center;
-    padding:8px 0 4px;
-  }
-  .auth-logo{
-    font-size:20px;
-    font-weight:900;
-    letter-spacing:.3px;
-  }
-  .auth-sub{
-    font-size:12px;
-    opacity:.75;
-    margin-top:4px;
-  }
-  .auth-tabs{
-    display:flex;
-    gap:8px;
-    margin-top:14px;
-    margin-bottom:12px;
-  }
-  .auth-tab{
-    flex:1;
-    padding:10px;
-    border-radius:16px;
-    border:1px solid rgba(255,255,255,.14);
-    background: rgba(255,255,255,.06);
-    text-align:center;
-    font-weight:900;
-    cursor:pointer;
-    user-select:none;
-  }
-  .auth-tab.active{
-    border-color: rgba(255,204,0,.45);
-    background: rgba(255,204,0,.18);
-  }
-  .auth-form{
-    display:none;
-    animation: pop .2s var(--ease, ease) both;
-  }
-  .auth-form.show{ display:block; }
-
-  .auth-card input{
-    width:100%;
-    padding:12px;
-    border-radius:14px;
-    margin-bottom:10px;
-    background: rgba(255,255,255,.06);
-    color: var(--text, #fff);
-    outline:none;
-    border:1px solid rgba(255,255,255,.14);
-  }
-  .auth-card input:focus{
-    box-shadow:0 0 0 2px rgba(255,204,0,.18);
-  }
-
-  .auth-btn{
-    width:100%;
-    padding:12px;
-    border-radius:16px;
-    border:none;
-    background: var(--accent, #ffcc00);
-    color:#000;
-    font-weight:900;
-    cursor:pointer;
-    position:relative;
-    overflow:hidden;
-  }
-  .auth-btn::after{
-    content:"";
-    position:absolute; inset:-40%;
-    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.32), rgba(255,255,255,0));
-    transform: translateX(-70%) rotate(10deg);
-    opacity:.55;
-    transition: transform .75s var(--ease2, ease);
-  }
-  .auth-btn:hover::after{ transform: translateX(70%) rotate(10deg); }
-
-  .auth-mini{
-    margin-top:10px;
-    display:flex;
-    gap:10px;
-  }
-  .auth-mini .ghost{
-    flex:1;
-    padding:12px;
-    border-radius:16px;
-    background: transparent;
-    color: var(--text, #fff);
-    border:1px solid rgba(255,255,255,.14);
-    font-weight:900;
-    cursor:pointer;
-  }
-  .auth-note{
-    margin-top:10px;
-    text-align:center;
-    font-size:12px;
-    opacity:.75;
-  }
-  .auth-note b{ color: color-mix(in srgb, var(--accent, #ffcc00) 75%, white); }
-
-  /* Welcome overlay */
-  .welcome{
-    position:fixed; inset:0;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    background: rgba(0,0,0,.58);
-    z-index:2100;
-  }
-  .welcome.show{ display:flex; animation:fadeIn .18s var(--ease, ease) both; }
-  .welcome-card{
-    width:min(360px, calc(100% - 28px));
-    border-radius:26px;
-    padding:18px;
-    background: rgba(255,255,255,.09);
-    border:1px solid rgba(255,255,255,.14);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 28px 95px rgba(0,0,0,.55);
-    text-align:center;
-    position:relative;
-    overflow:hidden;
-    animation: pop .22s var(--ease, ease) both;
-  }
-  .welcome-card::after{
-    content:"";
-    position:absolute; inset:-40%;
-    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.14), rgba(255,255,255,0));
-    transform: translateX(-70%) rotate(10deg);
-    animation:sparkle 2.0s var(--ease2, ease) infinite;
-    opacity:.55;
-    pointer-events:none;
-  }
-  .welcome-ring{
-    width:86px; height:86px;
-    margin:6px auto 12px;
-    border-radius:50%;
-    background: rgba(255,204,0,.14);
-    border:1px solid rgba(255,204,0,.25);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    animation: glowPulse .45s var(--ease, ease) both;
-    position:relative;
-  }
-  .welcome-ring::before{
-    content:"";
-    position:absolute; inset:-8px;
-    border-radius:50%;
-    border:1px solid rgba(255,204,0,.18);
-    opacity:.6;
-    animation: ringSpin 2.8s linear infinite;
-  }
-  .welcome-title{
-    font-weight:900;
-    font-size:16px;
-  }
-  .welcome-sub{
-    font-size:12px;
-    opacity:.78;
-    margin-top:4px;
-  }
-</style>
-
 
 
 
