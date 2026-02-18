@@ -309,11 +309,13 @@ button:active,.key:active,.cat:active,.icon-btn:active,.add-card:active,
 
 /* ===================== APP ===================== */
 .app{
-  display:none;
-  max-width:460px;
-  margin:auto;
-  padding:18px;
-  animation: fadeIn .35s var(--ease) both;
+    display:none;
+    max-width:1200px;   /* было ~440–460 */
+    width: min(1200px, 92vw);
+    margin:auto;
+    padding:24px;
+    animation: fadeIn .35s var(--ease) both;
+}
 }
 
 .topbar{
@@ -2201,3 +2203,4 @@ setupPin();
 
 </body>
 </html>
+
