@@ -930,13 +930,44 @@ input::placeholder{ color: color-mix(in srgb, var(--muted) 85%, transparent); }
   <!-- AUTH (Login / Register) -->
 <div class="pin-screen" id="authScreen" style="display:none;">
   <div class="pin-title">NeoBank</div>
-  <div class="pin-sub">Увійдіть або створіть акаунт</div>
+  <div class="pin-sub">Вхід у систему</div>
 
-  <div class="panel sparkle" style="width:min(440px, calc(100% - 28px)); margin-top:14px;">
-    <div class="filters" style="margin-bottom:12px;">
-      <div class="seg active" id="authTabLogin" onclick="setAuthTab('login')">Вхід</div>
-      <div class="seg" id="authTabReg" onclick="setAuthTab('reg')">Реєстрація</div>
+  <div class="panel sparkle" style="width:min(360px, calc(100% - 28px)); margin-top:20px;">
+    
+    <input id="loginNick" placeholder="Нік" autocomplete="username" />
+    <input id="loginPin" placeholder="PIN (4 цифри)" inputmode="numeric" maxlength="4" autocomplete="current-password" />
+
+    <button class="btn" type="button" onclick="doLogin()">Увійти</button>
+
+    <div class="hint" id="loginHint"></div>
+
+    <div style="text-align:center; margin-top:12px; font-size:12px; color:var(--muted); cursor:pointer;"
+         onclick="toggleRegister()">
+      Немає акаунта? Зареєструватися
     </div>
+  </div>
+</div>
+<div class="pin-screen" id="registerScreen" style="display:none;">
+  <div class="pin-title">Реєстрація</div>
+  <div class="pin-sub">Створіть акаунт</div>
+
+  <div class="panel sparkle" style="width:min(360px, calc(100% - 28px)); margin-top:20px;">
+    
+    <input id="regNick" placeholder="Нік" />
+    <input id="regEmail" placeholder="Пошта" />
+    <input id="regPin" placeholder="PIN (4 цифри)" maxlength="4" inputmode="numeric" />
+
+    <button class="btn" type="button" onclick="doRegister()">Створити акаунт</button>
+
+    <div class="hint" id="regHint"></div>
+
+    <div style="text-align:center; margin-top:12px; font-size:12px; color:var(--muted); cursor:pointer;"
+         onclick="toggleLogin()">
+      Вже є акаунт? Увійти
+    </div>
+  </div>
+</div>
+
 
     <!-- LOGIN -->
     <div id="loginBox">
@@ -1302,6 +1333,51 @@ function renderThemeGrid(){
 }
 
 /* ===================== PIN SCREEN ===================== */
+  /* ===================== AUTH SYSTEM ===================== */
+
+if(!state.accounts){
+  state.accounts = [];
+}
+
+function showAuth(){
+  $("authScreen").style.display = "flex";
+  $("pinScreen").style.display = "none";
+  $("app").style.display = "none";
+}
+
+function showPin(){
+  $("authScreen").style.display = "none";
+  $("pinScreen").style.display = "flex";
+  setupPin();
+}
+
+function doLogin(){
+  const nick = $("loginNick").value.trim();
+  const pin = digitsOnly($("loginPin").value);
+  const hint = $("loginHint");
+
+  hint.textContent = "";
+  hint.className = "hint";
+
+  const acc = state.accounts.find(a => a.nick === nick);
+
+  if(!acc){
+    hint.textContent = "Акаунт не знайдено";
+    hint.className = "hint bad";
+    return;
+  }
+
+  if(pin !== acc.pin){
+    hint.textContent = "Невірний PIN";
+    hint.className = "hint bad";
+    return;
+  }
+
+  state.pin = acc.pin;
+  save();
+
+  showPin();
+}
 let enteredPin="";
 function setupPin(){
   const dots = $("dots");
@@ -2229,15 +2305,10 @@ function renderAll(){
 }
 
 /* ===================== START ===================== */
-/* ===================== START ===================== */
 applyTheme();
 
 document.addEventListener("DOMContentLoaded", () => {
   showAuth();
 });
-
-
-</body>
-</html>
 
 
