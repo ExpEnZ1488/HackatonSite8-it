@@ -1716,120 +1716,7 @@ function renderThemeGrid(){
   });
 }
 
-/* ===================== PIN SCREEN ===================== */
-  /* ===================== AUTH SYSTEM ===================== */
-
-if(!state.accounts){
-  state.accounts = [];
-}
-
-function showAuth(){
-  $("authScreen").style.display = "flex";
-  $("pinScreen").style.display = "none";
-  $("app").style.display = "none";
-}
-
-function showPin(){
-  $("authScreen").style.display = "none";
-  $("pinScreen").style.display = "flex";
-  setupPin();
-}
-
-function doLogin(){
-  const nick = $("loginNick").value.trim();
-  const pin = digitsOnly($("loginPin").value);
-  const hint = $("loginHint");
-
-  hint.textContent = "";
-  hint.className = "hint";
-
-  const acc = state.accounts.find(a => a.nick === nick);
-
-  if(!acc){
-    hint.textContent = "Акаунт не знайдено";
-    hint.className = "hint bad";
-    return;
-  }
-
-  if(pin !== acc.pin){
-    hint.textContent = "Невірний PIN";
-    hint.className = "hint bad";
-    return;
-  }
-
-  state.pin = acc.pin;
-  save();
-
-  showPin();
-}
-let enteredPin="";
-function setupPin(){
-  const dots = $("dots");
-  dots.innerHTML="";
-  for(let i=0;i<4;i++){
-    const d=document.createElement("div");
-    d.className="dot";
-    dots.appendChild(d);
-  }
-  const keypad = $("keypad");
-  keypad.innerHTML="";
-  for(let i=1;i<=9;i++) createKey(i);
-  createKey("←"); createKey(0); createKey("OK");
-  updateDots();
-}
-
-function createKey(value){
-  const k=document.createElement("div");
-  k.className="key";
-  k.innerText=value;
-  k.onclick=()=>handleKey(value);
-  $("keypad").appendChild(k);
-}
-
-function updateDots(){
-  document.querySelectorAll(".dot").forEach((dot,i)=>{
-    dot.classList.toggle("filled", i < enteredPin.length);
-  });
-}
-
-function authOkOverlay(){
-  const o = $("authOk");
-  o.classList.add("show");
-  setTimeout(()=>o.classList.remove("show"), 900);
-}
-
-function handleKey(value){
-  if(value==="←"){
-    enteredPin = enteredPin.slice(0,-1);
-  } else if(value==="OK"){
-    checkPin();
-    return;
-  } else if(enteredPin.length<4){
-    enteredPin += String(value);
-  }
-  updateDots();
-}
-
-function checkPin(){
-  const ok = (enteredPin === (state.pin || "1234"));
-  if(ok){
-    authOkOverlay();
-    setTimeout(()=>{
-      $("pinScreen").style.display="none";
-      $("app").style.display="block";
-      initApp();
-    }, 520);
-    return;
-  }
-  enteredPin="";
-  updateDots();
-  const dots = $("dots");
-  dots.classList.remove("shake");
-  void dots.offsetWidth;
-  dots.classList.add("shake");
-  toast("Невірний PIN", "Спробуйте ще раз");
-}
-
+Я
 /* ===================== APP INIT ===================== */
 function initApp(){
   applyTheme();
@@ -2980,6 +2867,7 @@ window.showPin = function(){
     margin-top:4px;
   }
 </style>
+
 
 
 
