@@ -927,6 +927,40 @@ input::placeholder{ color: color-mix(in srgb, var(--muted) 85%, transparent); }
 
 <!-- PIN -->
 <div class="pin-screen" id="pinScreen">
+  <!-- AUTH (Login / Register) -->
+<div class="pin-screen" id="authScreen" style="display:none;">
+  <div class="pin-title">NeoBank</div>
+  <div class="pin-sub">Увійдіть або створіть акаунт</div>
+
+  <div class="panel sparkle" style="width:min(440px, calc(100% - 28px)); margin-top:14px;">
+    <div class="filters" style="margin-bottom:12px;">
+      <div class="seg active" id="authTabLogin" onclick="setAuthTab('login')">Вхід</div>
+      <div class="seg" id="authTabReg" onclick="setAuthTab('reg')">Реєстрація</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginBox">
+      <input id="loginNick" placeholder="Нік" autocomplete="username" />
+      <input id="loginPin" placeholder="PIN (4 цифри)" inputmode="numeric" maxlength="4" autocomplete="current-password" />
+      <div class="hint" id="loginHint"></div>
+
+      <button class="btn" type="button" onclick="login()">Увійти</button>
+      <button class="btn-ghost" type="button" onclick="openResetModal()">Забув PIN</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="regBox" style="display:none;">
+      <input id="regNick" placeholder="Нік" autocomplete="username" />
+      <input id="regEmail" placeholder="Пошта (обовʼязково для скидання PIN)" inputmode="email" autocomplete="email" />
+      <input id="regPin" placeholder="PIN (4 цифри)" inputmode="numeric" maxlength="4" autocomplete="new-password" />
+      <div class="hint" id="regHint"></div>
+
+      <button class="btn" type="button" onclick="registerUser()">Створити акаунт</button>
+    </div>
+
+    <div class="smallnote">🔒 PIN не зберігається відкрито (salt+hash).</div>
+  </div>
+</div>
   <div class="pin-title">Введіть PIN</div>
   <div class="pin-sub">Вхід у NeoBank</div>
   <div class="pin-dots" id="dots"></div>
@@ -2201,4 +2235,5 @@ setupPin();
 
 </body>
 </html>
+
 
